@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Test Face</string>
+
+    <string name="facebook_app_id">951689839140401</string>
+    <string name="fb_login_protocol_scheme">fb1234</string>
+    <string name="facebook_client_token">a42e237770219c9a88011c284f53d2d3</string>
+
+</resources>
