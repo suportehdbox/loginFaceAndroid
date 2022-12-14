@@ -38,7 +38,15 @@ public class MainActivity extends AppCompatActivity {
                 new FacebookCallback<LoginResult>() {
                     @Override
                     public void onSuccess(LoginResult loginResult) {
-                        // App code
+
+                        System.out.println("aqui");
+                        System.out.println("aqui");
+                        System.out.println("aqui");
+                        System.out.println("aqui");
+                        System.out.println("aqui");
+                        startActivity(new Intent(MainActivity.this, SecondActivity.class));
+
+                        finish();
                     }
 
                     @Override
