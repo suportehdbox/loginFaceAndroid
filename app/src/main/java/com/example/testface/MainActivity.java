@@ -15,13 +15,20 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.HttpMethod;
 import com.facebook.appevents.AppEventsLogger;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -51,14 +58,50 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(LoginResult loginResult) {
 
-                        System.out.println("aqui");
-                        System.out.println("aqui");
-                        System.out.println("aqui");
-                        System.out.println("aqui");
-                        System.out.println("aqui");
-                        startActivity(new Intent(MainActivity.this, SecondActivity.class));
+                        GraphRequest request = GraphRequest.newMeRequest(
 
-                        finish();
+                                loginResult.getAccessToken(),
+
+                                new GraphRequest.GraphJSONObjectCallback() {
+
+                                    @Override
+                                    public void onCompleted(JSONObject object,
+                                                            GraphResponse response)
+                                    {
+
+                                        if (object != null) {
+                                            try {
+                                                String name = object.getString("name");
+                                                String email = object.getString("email");
+                                                String fbUserID = object.getString("id");
+
+                                                disconnectFromFacebook();
+
+                                                // do action after Facebook login success
+                                                // or call your API
+                                            }
+                                            catch (JSONException | NullPointerException e) {
+                                                e.printStackTrace();
+                                            }
+                                        }
+                                    }
+                                });
+
+                        Bundle parameters = new Bundle();
+                        parameters.putString(
+                                "fields",
+                                "id, name, email, gender, birthday");
+                        request.setParameters(parameters);
+                        request.executeAsync();
+
+
+
+
+
+
+                        //startActivity(new Intent(MainActivity.this, SecondActivity.class));
+
+                        //finish();
                     }
 
                     @Override
@@ -80,15 +123,33 @@ public class MainActivity extends AppCompatActivity {
         LoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-
-
                 LoginManager.getInstance().logInWithReadPermissions(MainActivity.this, Arrays.asList("public_profile"));
-
 
             }
         });
 
+    }
+
+    public void disconnectFromFacebook()
+    {
+        if (AccessToken.getCurrentAccessToken() == null) {
+            return; // already logged out
+        }
+
+        new GraphRequest(
+                AccessToken.getCurrentAccessToken(),
+                "/me/permissions/",
+                null,
+                HttpMethod.DELETE,
+                new GraphRequest
+                        .Callback() {
+                    @Override
+                    public void onCompleted(GraphResponse graphResponse)
+                    {
+                        LoginManager.getInstance().logOut();
+                    }
+                })
+                .executeAsync();
     }
 
 
